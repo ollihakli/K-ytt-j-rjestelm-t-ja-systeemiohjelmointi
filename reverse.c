@@ -1,14 +1,15 @@
+/* Olli Häkli reverse.c */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#define MAX 50
+#define MAX 1000
 
 typedef struct rivi { //Tietue linkitetylle listalle
     char teksti[MAX];
     struct rivi *pSeuraava;
 } RIVI;
 
-RIVI *vapautaMuisti(RIVI *pA) {
+RIVI *vapautaMuisti(RIVI *pA) { //Muistin vapautus
     RIVI *ptr = pA;
     while (ptr != NULL) {
         pA = ptr->pSeuraava;
@@ -18,7 +19,7 @@ RIVI *vapautaMuisti(RIVI *pA) {
     return(pA);
 }
 
-void tulostus(RIVI *pA) {
+void tulostus(RIVI *pA) { //Aliohjelma tekstin tulostukseen näytölle
     RIVI *ptr = pA;
     while (ptr != NULL) {
         printf("%s", ptr->teksti);
@@ -27,28 +28,26 @@ void tulostus(RIVI *pA) {
 }
 
 RIVI *tiedostoLuku(char tiedostoNimi[], RIVI *pA, RIVI *pL) {
-    //RIVI *ptr = pA;
     RIVI *pU;
     char row[MAX];
 
     FILE *tiedosto; 
-    if ((tiedosto = fopen(tiedostoNimi, "r")) == NULL) {
+    if ((tiedosto = fopen(tiedostoNimi, "r")) == NULL) { //Tiedoston avaus
         fprintf(stderr, "error: cannot open file '%s'\n", tiedostoNimi);
         exit(1);
     }
     while (fgets(row, MAX, tiedosto) != NULL) { //Tiedoston luku
-        //printf("%s", row);
         if ((pU = (RIVI*)malloc(sizeof(RIVI))) == NULL ){
             fprintf(stderr, "malloc failed\n");
-            exit(1);
+            exit(1); 
         }
-        strcpy(pU->teksti, row);
+        strcpy(pU->teksti, row); //Tietojen lisäys linkitettyyn listaan
         pU->pSeuraava = NULL;
-        if(pA == NULL) {
+        if(pA == NULL) { //Jos lista tyhjä, lisätään alkuun
             pA = pU;
             pL = pU;
         }
-        else {
+        else { //Muuten listan loppuun
             pL->pSeuraava = pU;
             pL = pU;
         }
@@ -69,7 +68,7 @@ RIVI *tiedostoKirjoitus(char tiedostoNimi[MAX], RIVI *pA) {
     while (ptr != NULL) {
         strcpy(row, ptr->teksti);
         fprintf(tiedosto, "%s", row);
-        if (i == 1) { //Lisätään rivin vaihtomerkki ensimmäisen tiedon jälkeen.
+        if (i == 1) { //Lisätään rivinvaihtomerkki ensimmäisen tiedon jälkeen.
             fprintf(tiedosto, "\n");
         }
         ptr = ptr->pSeuraava;
@@ -79,7 +78,7 @@ RIVI *tiedostoKirjoitus(char tiedostoNimi[MAX], RIVI *pA) {
     return(pA);
 }
 
-RIVI *listanKaanto(RIVI* pA) {
+RIVI *listanKaanto(RIVI* pA) { 
     RIVI *pEdellinen, *ptr;
     if(pA != NULL) {
         pEdellinen = pA;
@@ -103,12 +102,7 @@ int main (int argc, char *argv[]) {
     //muuttujien alustus ja määrittely
     char inputfile[MAX];
     char outputfile[MAX];
-    //char row[MAX];
     RIVI *pAlku = NULL, *pLoppu = NULL; // Osoittimia listan käyttöön
-    //RIVI *pUusi, *ptr; // Apuosoitin muistin varaukseen ja liukuri
-
-    //strcpy(inputfile, argv[1]);
-    //strcpy(outputfile, argv[2]);
 
     //Toiminnallinen osuus
     if (argc < 2) {
@@ -140,48 +134,6 @@ int main (int argc, char *argv[]) {
         fprintf(stderr, "usage: reverse <input> <output>\n");
         exit(1);
     }
-    /*FILE *tiedostoLuku; //Tiedoston luku
-    tiedostoLuku = fopen(inputfile, "r"); 
-    while (fgets(row, 50, tiedostoLuku) != NULL) {
-        printf("%s", row);
-        if ((pUusi = (RIVI*)malloc(sizeof(RIVI))) == NULL ){
-            perror("Muistin varaus epäonnistui");
-            exit(1);
-        }
-        strcpy(pUusi->teksti, row);
-        pUusi->pSeuraava = NULL;
-        if(pAlku == NULL) {
-            pAlku = pUusi;
-            pLoppu = pUusi;
-        }
-        else {
-            pLoppu->pSeuraava = pUusi;
-            pLoppu = pUusi;
-        }
-    }    
-    fclose(tiedostoLuku);*/
-
-    /*// Listan läpikäynti
-    ptr = pAlku;
-    while (ptr != NULL) {
-        printf("%s", ptr->teksti);
-        ptr = ptr->pSeuraava;
-    }*/
-
-    /*FILE *tiedostoKirjoitus; // Tiedoston kirjoitus
-    tiedostoKirjoitus = fopen(outputfile, "w");
-    fgets(row, 50, stdin);
-    row[strlen(row)-1] = '\0';
-    fprintf(tiedostoKirjoitus, "%s\n", row);
-    fclose(tiedostoKirjoitus);*/
-
-    /*// Muistin vapauttaminen 
-    ptr = pAlku;
-    while (ptr != NULL) {
-        pAlku = ptr->pSeuraava;
-        free(ptr);
-        ptr = pAlku;
-    }*/
     //Lopetus
     pAlku = vapautaMuisti(pAlku);
     return(0); 
@@ -189,5 +141,7 @@ int main (int argc, char *argv[]) {
 
 /*
 Lähteet:
-https://quescol.com/interview-preparation/c-program-to-reverse-a-linked-list
+Linkitetyn listan kääntämiseen käytetty lähdettä: https://quescol.com/interview-preparation/c-program-to-reverse-a-linked-list
 */
+
+/*EOF*/
