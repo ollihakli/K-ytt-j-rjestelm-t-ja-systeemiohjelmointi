@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
         fclose(tiedosto);
         i++;
     }
-    printf("Kiitos");
+    //Lopetus
     return(0);
 }
 /*EOF*/
