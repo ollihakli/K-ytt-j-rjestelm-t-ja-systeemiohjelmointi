@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#define MAX 50
+#define MAX 200
 
 void search(char tiedostoNimi[MAX], char sana[MAX]) {
     char *ret;
-    char *buffer; // lähde: https://linuxhint.com/getline-function-c/
+    char *buffer; // getline funktion käytössä otettu mallia, lähde: https://linuxhint.com/getline-function-c/
     size_t bufsize = 32;
     size_t characters;
     buffer = (char *)malloc(bufsize * sizeof(char));
@@ -16,7 +16,7 @@ void search(char tiedostoNimi[MAX], char sana[MAX]) {
     }
     FILE *tiedosto;
     if ((tiedosto = fopen(tiedostoNimi, "r")) == NULL) {
-        fprintf(stderr, "my-cat: cannot open file\n");
+        fprintf(stderr, "my-grep: cannot open file\n");
             exit(1);
     }
     while (characters = getline(&buffer, &bufsize, tiedosto) != -1) {
@@ -37,14 +37,14 @@ int main (int argc, char *argv[]) {
     char row[MAX];
     char word[MAX];
     //Toiminnallinen osuus
-    if (argc < 2) {
-        printf("my-grep: searchterm [file ...]");
+    if (argc < 2) { //ei tiedostoa -> exit
+        printf("my-grep: searchterm [file ...]\n");
         exit(1);
     } else if (argc == 2) {
         strcpy(word, argv[1]);
         fgets(row, MAX, stdin);
         char *ret;
-        char *buffer; // lähde: https://linuxhint.com/getline-function-c/
+        char *buffer;
         size_t bufsize = 32;
         size_t characters;
         buffer = (char *)malloc(bufsize * sizeof(char));
@@ -67,7 +67,7 @@ int main (int argc, char *argv[]) {
         exit(1);
     }
 
-    printf("Kiitos");
+    //Lopetus
     return(0);
 }
 /*EOF*/
