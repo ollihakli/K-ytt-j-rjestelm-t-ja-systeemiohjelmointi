@@ -21,9 +21,14 @@ RIVI *vapautaMuisti(RIVI *pA) { //Muistin vapautus
 
 void tulostus(RIVI *pA) { //Aliohjelma tekstin tulostukseen näytölle
     RIVI *ptr = pA;
+    int i = 1;
     while (ptr != NULL) {
         printf("%s", ptr->teksti);
+        if (i == 1) { //Lisätään rivinvaihtomerkki ensimmäisen tiedon jälkeen.
+            printf("\n");
+        }
         ptr = ptr->pSeuraava;
+        i++;
     }
 }
 
