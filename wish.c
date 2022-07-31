@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#define MAX 100
+#define MAX 200
 
 int main(int argc, char *argv[]) {
 
@@ -40,7 +40,6 @@ int main(int argc, char *argv[]) {
                         exit(0);
                     } else {
                         write(STDERR_FILENO, error_message, strlen(error_message));
-                        //printf("exit error");
                         exit(1);
                     }
                 // cd
@@ -48,7 +47,6 @@ int main(int argc, char *argv[]) {
                     token = strtok(NULL, " ");
                     if(token == NULL) { //ei argumenttia -> exit
                         write(STDERR_FILENO, error_message, strlen(error_message));
-                        //printf("no arguments after cd");
                         exit(1);
                     } else {
                         strcpy(directory, token);
@@ -57,16 +55,10 @@ int main(int argc, char *argv[]) {
                         token = strtok(NULL, " ");
                         if(token != NULL) { // Liikaa argumentteja -> exit
                             write(STDERR_FILENO, error_message, strlen(error_message));
-                            //printf("Too many arguments after cd"); 
                             exit(1);
                         } else {
-                            
-                            //strcpy(directory, strcat("/", directory));
-                            //printf("%s", directory);
-                            
                             if (chdir(directory) != 0) {
                                 write(STDERR_FILENO, error_message, strlen(error_message));
-                                //printf("error cd failed");
                                 exit(1);
                             }
                             printf("%s\n", getcwd(s, 100));
@@ -78,8 +70,7 @@ int main(int argc, char *argv[]) {
                 if((strcmp(token, "path")) == 0) {
                     token = strtok(NULL, " ");
                     strcpy(path, token);
-                    break;
-                    
+                    break;       
 
                 //Ohjelman suoritus
                 } else {
@@ -88,7 +79,6 @@ int main(int argc, char *argv[]) {
                     strcat(initPath, path);
                     if(access(initPath, X_OK) != 0) {  //testataan löytyykö tiedostoa
                         write(STDERR_FILENO, error_message, strlen(error_message));
-                        //printf("error ei löydy");
                         break;
                     }
                     int rc = fork(); //lähde: https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-api.pdf
@@ -96,71 +86,49 @@ int main(int argc, char *argv[]) {
                         fprintf(stderr, "fork failed\n");
                         exit(1);
                     } else if (rc == 0) { // child (new process)
-                        //myargs[0] = strdup(token);
                         myargs[0] = initPath;
                         myargs[1] = NULL;
-                        printf("lapsi tämä toimii");
                         execv(myargs[0], myargs);
 
                     } else { // parent goes down this path (main)
                         int rc_wait = wait(NULL);
-                        printf("vanhempi toimii");
                     }
                     token = strtok(NULL, " ");
                     free(buffer);
                 }
             }
         }
-    } else if(argc == 2) { // Batch Sama toiminnallisuus mutta tiedostosta lukien.
+    } else if(argc == 2) { // Batch mode. Sama toiminnallisuus mutta tiedostosta lukien.
         char tiedostoNimi[MAX];
         strcpy(tiedostoNimi, argv[1]);
-        printf("%s", tiedostoNimi);
-        //buffer = NULL;
-        //bufsize = 0;
         FILE *tiedosto; //Tiedoston luku
         if ((tiedosto = fopen(tiedostoNimi, "r")) == NULL) {
             fprintf(stderr, "error: cannot open file '%s'\n", tiedostoNimi);
             exit(1);
         }
         while (getline(&buffer, &bufsize, tiedosto) != -1){
-            printf("%s", buffer);
-            buffer[strlen(buffer)-1] = '\0';
             token = strtok(buffer, " "); //parsitaan ensimmäinen sana
-            while(token != NULL) {
-                //Lopetus
-                if((strcmp(token, "exit")) == 0) { 
-                    token = strtok(NULL, " ");
-                    if(token == NULL) {
-                        printf("lopetus");
-                        exit(0);
-                    } else {
-                        printf("exit error");
-                        exit(1);
-                    }
-                // cd
-                }if((strcmp(token, "cd")) == 0) {
+            while(token != NULL) { //käydään syöte läpi sana sanalta
+                
+                if((strcmp(token, "cd")) == 0) {
                     token = strtok(NULL, " ");
                     if(token == NULL) { //ei argumenttia -> exit
-                        printf("no arguments after cd");
+                        write(STDERR_FILENO, error_message, strlen(error_message));
                         exit(1);
                     } else {
                         strcpy(directory, token);
-
-                        printf("%s", directory);
+                        char s[MAX];
+                        printf("%s\n", getcwd(s, 100));
                         token = strtok(NULL, " ");
                         if(token != NULL) { // Liikaa argumentteja -> exit
-                            printf("Too many arguments after cd"); 
+                            write(STDERR_FILENO, error_message, strlen(error_message));
                             exit(1);
                         } else {
-                            
-                            //strcpy(directory, strcat("/", directory));
-                            //printf("%s", directory);
-                            
                             if (chdir(directory) != 0) {
-                                printf("error cd failed");
+                                write(STDERR_FILENO, error_message, strlen(error_message));
                                 exit(1);
                             }
-                            printf("%s\n", getcwd(directory, 100));
+                            printf("%s\n", getcwd(s, 100));
                             continue;    
                         }
                     }
@@ -169,38 +137,33 @@ int main(int argc, char *argv[]) {
                 if((strcmp(token, "path")) == 0) {
                     token = strtok(NULL, " ");
                     strcpy(path, token);
-                    break;
-                    
+                    break;       
 
                 //Ohjelman suoritus
                 } else {
-         
-                    strcpy(path, token);
+                    strcpy(initPath, "/bin/");
+                    strcpy(path, buffer);
                     strcat(initPath, path);
                     if(access(initPath, X_OK) != 0) {  //testataan löytyykö tiedostoa
-                            printf("error ei löydy");
-                            break;
-                        }
+                        write(STDERR_FILENO, error_message, strlen(error_message));
+                        break;
+                    }
                     int rc = fork(); //lähde: https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-api.pdf
                     if (rc < 0) { // fork failed; exit
                         fprintf(stderr, "fork failed\n");
                         exit(1);
                     } else if (rc == 0) { // child (new process)
-                        //myargs[0] = strdup(token);
                         myargs[0] = initPath;
                         myargs[1] = NULL;
-                        printf("lapsi tämä toimii");
                         execv(myargs[0], myargs);
 
                     } else { // parent goes down this path (main)
                         int rc_wait = wait(NULL);
-                        printf("vanhempi toimii");
                     }
                     token = strtok(NULL, " ");
-                    continue;
+                    free(buffer);
                 }
             }
-            free(buffer);
         }
 
         fclose(tiedosto);
@@ -212,4 +175,7 @@ int main(int argc, char *argv[]) {
 
     return(0);
 }
+/* Lähteet: 
+https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-api.pdf
+*/
 /*EOF*/
