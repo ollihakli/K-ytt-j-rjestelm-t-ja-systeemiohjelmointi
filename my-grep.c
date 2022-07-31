@@ -22,9 +22,9 @@ void search(char tiedostoNimi[MAX], char sana[MAX]) {
     while (characters = getline(&buffer, &bufsize, tiedosto) != -1) {
         if ((ret = strstr(buffer, sana)) != NULL) {
             printf("%s", buffer);
-            free(buffer);
         }
     }
+    free(buffer);
     fclose(tiedosto);
 }
 
@@ -37,14 +37,14 @@ int main (int argc, char *argv[]) {
     char row[MAX];
     char word[MAX];
     //Toiminnallinen osuus
-    if (argc < 2) { //ei tiedostoa -> exit
+    if (argc < 2) { //ei haettavaa sanaa -> exit
         printf("my-grep: searchterm [file ...]\n");
         exit(1);
-    } else if (argc == 2) {
+    } else if (argc == 2) { //Pelkkä hakusana, etsitään sana syötteestä
         strcpy(word, argv[1]);
         fgets(row, MAX, stdin);
         char *ret;
-        char *buffer;
+        char *buffer; 
         size_t bufsize = 32;
         size_t characters;
         buffer = (char *)malloc(bufsize * sizeof(char));
@@ -55,7 +55,7 @@ int main (int argc, char *argv[]) {
         if ((ret = strstr(row, word)) != NULL) {
             printf("%s", row);
         }
-    } else if (argc >= 3) {
+    } else if (argc >= 3) { //Yksi tai useampi tiedosto, mistä etsitään.
         int i = 3;
         while (i <= argc) {
             strcpy(inputfile, argv[i-1]);
@@ -70,4 +70,9 @@ int main (int argc, char *argv[]) {
     //Lopetus
     return(0);
 }
+
+/*Lähtet
+https://linuxhint.com/getline-function-c/
+*/
+
 /*EOF*/
